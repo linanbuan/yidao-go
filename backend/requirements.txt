@@ -1,0 +1,15 @@
+# 运行期依赖（容器镜像与 `backend/.venv` 都按这一份装）。
+#
+# 版本一律 `==` 锁死（审计 1.22 低）：从前全是 `>=`，实际装出来的版本已经漂移
+# （本机 anyio 4.15.0 vs 另一处 4.15.1），同一份代码在不同机器上跑的不是同一套库，
+# "构建不可复现"排障时最费时间。下面这一组是 **213 项后端测试全绿**的那一套。
+#
+# 升级流程：改这里 → 建新 venv 装一遍 → 跑 `pytest backend/tests` 全绿 → 再提交。
+fastapi==0.141.1
+uvicorn[standard]==0.52.4
+sqlalchemy==2.0.52
+pydantic==2.13.5
+pydantic-settings==2.15.0
+httpx==0.28.1
+PyJWT==2.13.0
+python-multipart==0.0.32

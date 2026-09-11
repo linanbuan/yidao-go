@@ -1,0 +1,9 @@
+# 桌面端依赖。
+#
+# 后端以线程方式内嵌在同一进程里（见 core/backend_host.py），所以桌面端的
+# 解释器必须能 import 整个后端 —— 依赖直接复用 backend/requirements.txt，
+# 不复制版本号，避免两份清单各自漂移。
+-r ../backend/requirements.txt
+
+# Qt 控件树、WebSocket 客户端、图表、音频。PySide6 官方 wheel 已含全部 Addons。
+PySide6>=6.6

@@ -1,0 +1,31 @@
+# 构建上下文瘦身与「别把本机东西塞进 Linux 镜像」（审计 1.22 低）。
+#
+# 不写这个文件时，`docker build ./backend` 会把 .venv、data、katago 权重、
+# katago.exe 与 13 个 DLL 全打进上下文（约 180MB），其中 data/ 里还有真库
+# （含口令散列），而这台机器是 Windows —— 那份 katago.exe 进镜像后根本不能跑。
+
+# 依赖与缓存
+.venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+.pytest_cache/
+*.log
+_pytest_*.txt
+
+# 数据（真 SQLite / SGF / 报告，含用户与口令散列）——绝不进镜像
+data/
+
+# 引擎二进制与权重：模型由 compose 的命名卷挂载，别把本机平台的文件塞进镜像
+katago/models/
+katago/katago
+katago/katago.exe
+katago/*.dll
+katago/*.so
+katago/*.dylib
+katago/*.log
+katago/*.prev
+
+# 本地配置（可能含明文口令）
+.env
+launcher.json

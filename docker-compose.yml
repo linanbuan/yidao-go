@@ -1,0 +1,61 @@
+# 弈道 —— 一键部署（仅后端 / API）
+#
+#   docker compose up -d --build
+#   接口文档 http://localhost:8000/docs
+#
+# 界面是 PySide6 桌面客户端（desktop/），它把后端内嵌在自己的进程里、绑 127.0.0.1，
+# 因此**不进容器**：容器这套只用于「把后端与 KataGo 跑在别处/服务器上」的场景。
+# 旧网页端（frontend/ 服务，8080:80）已于 2026-09-08 随网页端下线一并移除。
+#
+# 常用可调项（写入同目录 .env 或直接改这里）：
+#   GO_LLM_API_KEY / GO_LLM_BASE_URL / GO_LLM_MODEL   大模型（复盘讲解）
+#   GO_JWT_SECRET                                     生产环境务必改掉
+#   GO_REVIEW_VISITS                                  复盘每手分析深度
+#   KATAGO_BACKEND                                    eigen(CPU) / opencl / cuda
+#
+# 有 NVIDIA GPU 时，取消 backend 服务里 deploy 段的注释可启用 GPU 加速。
+
+services:
+  backend:
+    build:
+      context: ./backend
+      args:
+        WITH_KATAGO: "true"
+        KATAGO_BACKEND: ${KATAGO_BACKEND:-eigen}
+    environment:
+      # 注意：容器的监听地址由 Dockerfile 的 CMD（`--host 0.0.0.0 --port 8000`）
+      # 决定。从前这里写的 GO_HOST/GO_PORT 是**死配置**（审计 1.22 低）：
+      # main.py 只在 `__main__` 分支读它们，容器里跑的是 `uvicorn app.main:app`，
+      # 改了这两个变量什么都不会发生。已删除，避免误导。
+      GO_DOCS_ENABLED: "false"          # 0.0.0.0 上不暴露 /docs 与 openapi.json
+      # 留空 = 启动时自动生成一枚并持久化到 /app/data/jwt_secret.txt（挂卷后重启不失效）。
+      # 多机/多副本部署必须显式给同一个值，否则各副本密钥不同、互相不认令牌。
+      GO_JWT_SECRET: ${GO_JWT_SECRET:-}
+      GO_DATABASE_URL: sqlite:////app/data/go_teach.db
+      GO_KATAGO_BIN: /app/katago/katago
+      GO_LLM_ENABLED: "true"
+      GO_LLM_BASE_URL: ${GO_LLM_BASE_URL:-https://api.deepseek.com/v1}
+      GO_LLM_MODEL: ${GO_LLM_MODEL:-deepseek-chat}
+      GO_LLM_API_KEY: ${GO_LLM_API_KEY:-}
+      # 与 config.py 的默认值保持一致（审计 1.22 中：这里是 32、代码里是 96，
+      # 容器部署会静默把复盘质量降一档——32 visits 下玩家的实际落点常常不在候选里）。
+      GO_REVIEW_VISITS: ${GO_REVIEW_VISITS:-96}
+      GO_KATAGO_TIMEOUT: ${GO_KATAGO_TIMEOUT:-60}
+    volumes:
+      - go_data:/app/data
+      - katago_models:/app/katago/models
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    # GPU（NVIDIA + katago cuda 版）示例：
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+volumes:
+  go_data:
+  katago_models:

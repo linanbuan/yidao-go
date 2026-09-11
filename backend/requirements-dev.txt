@@ -1,0 +1,7 @@
+# 开发/测试期依赖。此前 pytest 谁都没声明（审计 1.22 低）——
+# "怎么跑测试"这件事只存在于 README 的描述里，新机器上 `pip install -r requirements.txt`
+# 之后 pytest 命令不存在。装测试环境用：
+#
+#     pip install -r requirements.txt -r requirements-dev.txt
+-r requirements.txt
+pytest==9.1.1

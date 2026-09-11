@@ -1,0 +1,8 @@
+# 桌面端开发/测试依赖。
+#
+# 与 backend/requirements-dev.txt 同构：运行期清单 + 测试期清单分开，
+# 容器镜像只装运行期那份，venv 与 CI 装 dev 那份。
+#
+# 版本与本机实测全绿的组合一致（桌面 393 passed / 2 skipped）。
+-r requirements.txt
+pytest==9.1.1

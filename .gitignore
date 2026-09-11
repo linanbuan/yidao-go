@@ -1,0 +1,62 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ---- 运行时数据（数据库、SGF、导出报告、标定结果）----
+# 目录由 app/config.py 在启动时自动创建，无需保留占位文件
+backend/data/
+
+# ---- 测试库：跑 pytest 时生成，故意放在 data/ 之外 ----
+backend/.pytest_tmp/
+
+# ---- KataGo 引擎目录：除下载脚本外全是 katago/download.py 拉下来的 ----
+# 含 katago.exe、十几个运行库 DLL（opencl 版缺一个就起不来）、models/*.bin.gz
+# 权重、自动生成的 analysis.cfg，以及 KataGoData/opencltuning/ 里本机专属的
+# GPU 内核调优缓存（换机器就无效，不该进仓库）
+backend/katago/*
+!backend/katago/download.py
+
+# ---- 前端（旧网页端 2026-09-08 已下线，目录已删；规则留着以备从 git 历史检出）----
+node_modules/
+frontend/dist/
+*.tsbuildinfo
+.vite/
+
+# ---- 桌面端运行时产物（验收截图、客户端日志、pytest 缓存）----
+desktop/artifacts/
+desktop/logs/
+desktop/.pytest_cache/
+
+# ---- 环境与部署 ----
+.env
+.env.local
+docker-compose.override.yml
+
+# ---- 缓存（题库推导缓存：首次启动自动重算，约 2 分钟）----
+backend/app/tsumego/library_cache.json
+
+# ---- 启动器 exe 构建产物（PyInstaller 可用 README 中的命令重新打出）----
+build_launcher/
+dist_launcher/
+弈道启动器.exe
+
+# ---- 根目录运行日志（启动器/客户端 frozen 模式写在 APP_DIR/logs）----
+logs/
+
+# ---- 本地 AI 会话工作数据（.workbuddy：工作记忆、技能缓存；不属项目源码）----
+.workbuddy/
+
+# ---- 会话临时校验文件（_ 前缀约定）----
+_*.txt
+
+# ---- 编辑器 / 系统 ----
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
